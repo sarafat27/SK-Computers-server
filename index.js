@@ -34,7 +34,7 @@ async function run() {
         await client.connect();
         const partCollection = client.db('sk_computers').collection('parts')
         const userCollection = client.db('sk_computers').collection('users')
-        const bookingCollection = client.db('sk_computers').collection('bookings')
+        const orderCollection = client.db('sk_computers').collection('orders')
 
         app.get('/part', async (req, res) => {
             const query = {}
@@ -42,7 +42,7 @@ async function run() {
             res.send(parts)
         });
 
-        app.get('/part/:id', async (req, res) => {
+        app.get('/part/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const singlePart = await partCollection.findOne(query);
@@ -62,6 +62,12 @@ async function run() {
                 expiresIn: '30d'
             })
             res.send({ result, token })
+        });
+
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result)
         })
 
     }
