@@ -35,6 +35,7 @@ async function run() {
         const partCollection = client.db('sk_computers').collection('parts')
         const userCollection = client.db('sk_computers').collection('users')
         const orderCollection = client.db('sk_computers').collection('orders')
+        const reviewCollection = client.db('sk_computers').collection('reviews')
 
         app.get('/part', async (req, res) => {
             const query = {}
@@ -67,6 +68,32 @@ async function run() {
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
+            res.send(result)
+        });
+
+        app.get('/orders', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email }
+                const orders = await orderCollection.find(query).toArray()
+                return res.send(orders)
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+        });
+
+        app.delete('/product/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result)
+        });
+
+        app.post('/review', verifyJWT, async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
             res.send(result)
         })
 
