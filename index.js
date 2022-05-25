@@ -51,7 +51,7 @@ async function run() {
 
         app.get('/part', async (req, res) => {
             const query = {}
-            const parts = await partCollection.find(query).limit(6).toArray()
+            const parts = await partCollection.find(query).sort({ _id: -1 }).limit(6).toArray()
             res.send(parts)
         });
 
@@ -147,7 +147,12 @@ async function run() {
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin })
         })
-
+        //insert a product
+        app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
+            const product = req.body;
+            const result = await partCollection.insertOne(product)
+            res.send(result)
+        });
     }
     finally {
 
