@@ -38,6 +38,17 @@ async function run() {
         const reviewCollection = client.db('sk_computers').collection('reviews')
         const profileCollection = client.db('sk_computers').collection('profiles')
 
+        const verifyAdmin = async (req, res, next) => {
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({ email: requester })
+            if (requesterAccount.role === 'admin') {
+                next()
+            }
+            else {
+                res.status(403).send({ message: 'forbidden' })
+            }
+        }
+
         app.get('/part', async (req, res) => {
             const query = {}
             const parts = await partCollection.find(query).limit(6).toArray()
@@ -65,6 +76,11 @@ async function run() {
             })
             res.send({ result, token })
         });
+
+        app.get('/user', verifyJWT, async (req, res) => {
+            const users = await userCollection.find().toArray()
+            res.send(users)
+        })
 
         app.post('/order', async (req, res) => {
             const order = req.body;
@@ -113,6 +129,23 @@ async function run() {
             }
             const result = await profileCollection.updateOne(filter, updatedDoc, options);
             res.send(result)
+        });
+        //update a user to admin by an admin
+        app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updatedDoc = {
+                $set: { role: 'admin' }
+            }
+            const result = await userCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        });
+        //check a user wheather he is admin or not
+        app.get('/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
         })
 
     }
