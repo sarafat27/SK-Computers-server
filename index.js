@@ -36,6 +36,7 @@ async function run() {
         const userCollection = client.db('sk_computers').collection('users')
         const orderCollection = client.db('sk_computers').collection('orders')
         const reviewCollection = client.db('sk_computers').collection('reviews')
+        const profileCollection = client.db('sk_computers').collection('profiles')
 
         app.get('/part', async (req, res) => {
             const query = {}
@@ -99,6 +100,18 @@ async function run() {
 
         app.get('/review', verifyJWT, async (req, res) => {
             const result = await reviewCollection.find().toArray();
+            res.send(result)
+        });
+
+        app.put('/profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = { email: email }
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: profile
+            }
+            const result = await profileCollection.updateOne(filter, updatedDoc, options);
             res.send(result)
         })
 
