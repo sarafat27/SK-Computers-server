@@ -49,12 +49,14 @@ async function run() {
             }
         }
 
+        //get all products for home page
         app.get('/part', async (req, res) => {
             const query = {}
             const parts = await partCollection.find(query).sort({ _id: -1 }).limit(6).toArray()
             res.send(parts)
         });
 
+        //get detail of one product in purchase page
         app.get('/part/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
@@ -62,6 +64,7 @@ async function run() {
             res.send(singlePart)
         });
 
+        //insert or update a users info
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -77,17 +80,20 @@ async function run() {
             res.send({ result, token })
         });
 
+        //get a users info
         app.get('/user', verifyJWT, async (req, res) => {
             const users = await userCollection.find().toArray()
             res.send(users)
         })
 
+        //insert an order info
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result)
         });
 
+        //get my orders list in my orders page
         app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email;
             const decodedEmail = req.decoded.email;
@@ -101,24 +107,28 @@ async function run() {
             }
         });
 
-        app.delete('/product/:id', verifyJWT, async (req, res) => {
+        //delete a product from my order
+        app.delete('/userProduct/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
             res.send(result)
         });
 
+        //post a review in add review page
         app.post('/review', verifyJWT, async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(result)
         })
 
+        //get all reviews for home page
         app.get('/review', verifyJWT, async (req, res) => {
-            const result = await reviewCollection.find().toArray();
+            const result = await reviewCollection.find().sort({ _id: -1 }).toArray();
             res.send(result)
         });
 
+        //update my profile in my profile page
         app.put('/profile/:email', async (req, res) => {
             const email = req.params.email;
             const profile = req.body;
@@ -147,12 +157,31 @@ async function run() {
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin })
         })
-        //insert a product
+        //insert a new product by admin
         app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
             const product = req.body;
             const result = await partCollection.insertOne(product)
             res.send(result)
         });
+        //get all products by admin 
+        app.get('/products', verifyJWT, verifyAdmin, async (req, res) => {
+            const products = await partCollection.find().toArray()
+            res.send(products)
+        });
+
+        //Delete product by admin
+        app.delete('/adminProduct/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await partCollection.deleteOne(query);
+            res.send(result)
+        });
+        //get all orders for admin
+        app.get('/allOrders', verifyJWT, verifyAdmin, async (req, res) => {
+            const allOrders = await orderCollection.find().toArray();
+            res.send(allOrders)
+        });
+
     }
     finally {
 
