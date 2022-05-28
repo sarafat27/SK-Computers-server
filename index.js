@@ -125,7 +125,7 @@ async function run() {
         })
 
         //get all reviews for home page
-        app.get('/review', verifyJWT, async (req, res) => {
+        app.get('/review', async (req, res) => {
             const result = await reviewCollection.find().sort({ _id: -1 }).toArray();
             res.send(result)
         });
