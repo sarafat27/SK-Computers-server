@@ -1,6 +1,6 @@
 # SK Computers
 
-My website's server side live link: [Click here](https://gym-equipment-warehouse.web.app/).
+My website's server side live link: [Click here](https://rocky-reaches-51313.herokuapp.com/).
 
 ## Description
 This is an website of manufacturer where the details of the parts of computer is showing.Any admin of this website can log  into this website and they can add,delete ,update the items.Registered users can book items,give reviews,see their orders and can pay amount through payment system. Without login they can see the home page but cannot book items.
